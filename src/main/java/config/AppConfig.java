@@ -15,6 +15,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import util.Client;
+import util.CustomResourceLoader;
 import util.SegregatedClassLoader;
 import util.Utils;
 
@@ -24,10 +25,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Table;
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -52,6 +50,11 @@ public class AppConfig {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 //        factory.setBeanClassLoader(new SegregatedClassLoader());
+//        factory.setResourceLoader(new DefaultResourceLoader(new SegregatedClassLoader()));
+        factory.setPersistenceUnitPostProcessors(pui ->
+            pui.addManagedClassName("entity.Account$$$mart")
+        );
+        factory.setResourceLoader(new CustomResourceLoader());
         factory.setJpaVendorAdapter(adapter);
         factory.setDataSource(dataSource);
         factory.setJpaProperties(hibernateProperties);
@@ -70,15 +73,12 @@ public class AppConfig {
             EnumSet.allOf(Client.class).forEach(client -> {
                 String newClassName = Utils.makeClassName(aClass, client);
                 String newTableName = client.name().concat(".").concat(tableName);
-                try {
+                SegregatedClassLoader.storeClass(newClassName,
                     new ByteBuddy().subclass(aClass)
                         .name(newClassName)
                         .annotateType(AnnotationDescription.Builder.ofType(Table.class).define("name", newTableName).build())
                         .annotateType(AnnotationDescription.Builder.ofType(Entity.class).build())
-                        .make().saveIn(new File(aClass.getClassLoader().getResource(".").getPath()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                        .make().getBytes());
             });
         });
     }

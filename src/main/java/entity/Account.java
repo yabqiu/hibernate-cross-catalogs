@@ -1,6 +1,8 @@
 package entity;
 
 import annotation.Segregated;
+import util.Client;
+import util.Utils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -35,5 +37,13 @@ public abstract class Account {
     public Account setName(String name) {
         this.name = name;
         return this;
+    }
+
+    public static <A extends Account> A createFor(Client client) {
+        try {
+            return (A) Class.forName(Utils.makeClassName(Account.class, client)).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
