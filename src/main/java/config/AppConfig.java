@@ -57,6 +57,8 @@ public class AppConfig {
         factory.setResourceLoader(new CustomResourceLoader());
         factory.setJpaVendorAdapter(adapter);
         factory.setDataSource(dataSource);
+
+
         factory.setJpaProperties(hibernateProperties);
         factory.setPackagesToScan("entity");
         factory.afterPropertiesSet();

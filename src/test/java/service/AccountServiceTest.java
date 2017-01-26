@@ -2,6 +2,7 @@ package service;
 
 import config.AppConfig;
 import entity.Account;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,6 +18,7 @@ import static util.Client.mart;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = AppConfig.class)
+@Ignore
 public class AccountServiceTest {
 
     @Inject
